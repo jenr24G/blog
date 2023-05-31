@@ -425,7 +425,7 @@ Notice the base58 encoded `memo` field
     Sum all aggregated voter stake to get the <i>total voting stake</i>
   </li>
   <li>
-    Sum stake for yes/no votes
+    For each delegate, start with their total stake, and subtract the balances of accounts that delegate to them with a disagreeing vote
   </li>
   <li>
     Divide yes/no vote stakes by the total voting stake, as a float in Python, f64 in Rust
