@@ -436,6 +436,23 @@ Notice the base58 encoded `memo` field
   </li>
 </ol>
 
+### Adjust Votes and Voting Stake with Non-Delegating Voters
+Find all votes made by a delegating account, and subtract their account balance from the final voting stake if they disagree with their delegate
+<pre><code>
+delegating_stake = {}
+delegating_votes = {}
+for vote in votes:
+    if vote.pk in delegators:
+        delegating_stake[vote.pk] = accounts[vote.pk]['balance']
+        delegating_votes[vote.pk] = vote.memo
+for vote in delegating_votes
+    delegate_vote = votes[accounts[pk]['delegate']]
+    if against(delegate_vote) and for(vote) and pk not in delegating_votes:
+        no_stake -= delegating_stake[vote.pk]
+    else if for(delegate_vote) and  against(vote) and pk not in delegating_votes:
+        yes_stake -= delegating_stake[vote.pk]
+</code></pre>
+
 Check agreement with the voting results dashboard and/or `@trevorbernard`'s verification scripts
 
 ### Vote Verification Scripts
