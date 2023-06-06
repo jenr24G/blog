@@ -1,6 +1,6 @@
 # On-Chain Voting Results for [MIPs](https://github.com/MinaProtocol/MIPs)
 
-> [Granola Systems](https://granola.team/) is a software consultancy and Mina ecosystem partner. We make winning teams using our expertise in leadership, DevOps, Web3, distributed systems, functional programming, and data engineering. Granola has developed a dashboard for displaying on-chain [voting results](https://mina.vote/mainnet/mip1/results?start=1672848000000&end=1673685000000&hash=jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8). We operate an archive node and do regular [staking ledger dumps](https://github.com/Granola-Team/mina-ledger/tree/main/mainnet).
+> [Granola Systems](https://granola.team/) is a software consultancy and Mina ecosystem partner. We make winning teams using our expertise in leadership, DevOps, Web3, distributed systems, functional programming, and data engineering. Granola has developed a dashboard for displaying on-chain [MIP 3 Voting Results](https://www.mina.vote/proposal/3/results) [MIP 4 Voting Results](https://www.mina.vote/proposal/4/results). We operate an archive node and do regular [staking ledger dumps](https://github.com/Granola-Team/mina-ledger/tree/main/mainnet).
 
 This article details the calculation of Mina's on-chain voting results. Equipped with the tools and knowledge, you can independently verify our code, logic, and results. Public blockchains like Mina Protocol are truly remarkable and equally as complex! We always strive for correctness in our code and exhaustively test.
 
@@ -10,7 +10,7 @@ Find an issue or a bug? Have a question or suggestion? We'd love to get your [fe
 
 ## Calculation of Mina's On-Chain Voting Results
 
-We will describe in detail how to calculate the results of Mina's on-chain stake-weighted voting for `MIP1` during epoch 44
+We will describe in detail how to calculate the results of Mina's on-chain stake-weighted voting!
 
 ## Overview
 
@@ -96,23 +96,27 @@ There are several appropriate levels of engagement with this documentation. Read
 
 ## Results Calculation Instructions
 
-We calculate the results of [MIP1](https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-remove-supercharged-rewards.md) voting
+We calculate the results of [MIP3](https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-kimchi.md) and [MIP4](https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-zkapps.md) voting
 
-- Start: *January 4 16:00 UTC* (epoch 44, slot 2000)
-- End: *January 14 08:30 UTC* (epoch 44, slot 6650)
+- MIP3 Start: *5/20/23 at 6:00 AM UTC* (Epoch 53, Slot 2820)
+- MIP3 End: *5/28/23 at 6:00 AM UTC* (Epoch 53, slot 6660)
+
+- MIP4 Start: *5/20/23 at 6:00 AM UTC* (Epoch 53, Slot 2820)
+- MIP4 End: *5/28/23 at 6:00 AM UTC* (Epoch 53, slot 6660)
+
 
 | Data | Value |
 |:-:|:-:|
-| *Epoch* | `44` |
-| *Keyword* | `MIP1` |
-| *Start time* | `Jan 4, 2023 16:00 UTC` |
-| *End time* | `Jan 14, 2023 08:30 UTC` |
+| *Epoch* | `53` |
+| *Keyword* | `MIP3 | MIP4` |
+| *Start time* | `May 20, 2023 06:00 UTC` |
+| *End time* | `May 28, 2023 06:00 UTC` |
 
 ## Calculation steps
 
 ### Obtain staking ledger
 
-Since we are calculating the results for MIP1 voting (epoch 44), we need the *next staking ledger* of the *next* epoch, i.e. the *staking ledger* of epoch 46.
+Since we are calculating the results for MIP3 and MIP4 voting (epoch 53), we need the *next staking ledger* of the *next* epoch, i.e. the *staking ledger* of epoch 55.
 
 <ol type="a">
   <li>
@@ -120,7 +124,7 @@ Since we are calculating the results for MIP1 voting (epoch 44), we need the *ne
 
 <pre><code>
 query NextLedgerHash {
-  blocks(query: {canonical: true, protocolState: {consensusState: {epoch: 45}}}, limit: 1) {
+  blocks(query: {canonical: true, protocolState: {consensusState: {epoch: 55}}}, limit: 1) {
     protocolState {
       consensusState {
         nextEpochData {
@@ -142,10 +146,10 @@ response = {
       {
         'protocolState': {
           'consensusState': {
-            'epoch': 45,
+            'epoch': 55,
             'nextEpochData': {
               'ledger': {
-                'hash': 'jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8'
+                'hash': 'jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS'
               }
             }
           }
@@ -164,10 +168,10 @@ response['data']['blocks'][0]['protocolState']['consensusState']['nextEpochData'
 
 </li>
 <li>
-  Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in fact, the <i>next staking ledger</i> of epoch 45, via
+  Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in fact, the <i>next staking ledger</i> of epoch 55, via
 
 <pre><code>
-wget https://raw.githubusercontent.com/Granola-Team/mina-ledger/main/mainnet/jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8.json -O path/to/ledger.json
+wget https://raw.githubusercontent.com/Granola-Team/mina-ledger/main/mainnet/jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS.json -O path/to/ledger.json
 </code></pre>
 
 You can use any of the following sources (extra credit: use them all and check diffs)
@@ -249,7 +253,7 @@ for d in delegators:
 
 ### Obtain and parse votes
 
-To obtain all MIP1 votes, we need to get all transactions corresponding to the MIP1 voting period (votes are just special transactions after all). It would be nice to be able to prefilter the transactions more and only fetch what is required, but since `memo` fields are *base58 encoded* and *any capitalization of the keyword is valid*, prefiltering will be complex and error-prune.
+To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding to the MIP1 voting period (votes are just special transactions after all). It would be nice to be able to prefilter the transactions more and only fetch what is required, but since `memo` fields are *base58 encoded* and *any capitalization of the keyword is valid*, prefiltering will be complex and error-prune.
 
 <ol type="a">
   <li>
@@ -438,11 +442,11 @@ Check agreement with the <a href="https://mina.vote/mainnet/mip1/results?start=1
 </li>
 </ol>
 
-## MIP1 Voting Results
+## MIP3 and MIP4 Voting Results
 
-[Granola's MIP1 results dashboard](https://mina.vote/mainnet/mip1/results?start=1672848000000&end=1673685000000&hash=jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8)
+[Granola's MIP3 results dashboard](https://www.mina.vote/proposal/3/results)
 
-[`mina_voting` MIP1 report](https://github.com/Isaac-DeFrain/mina-utils/blob/main/scripts/voting-results/mip1_report.txt)
+[Granola's MIP4 results dashboard](https://www.mina.vote/proposal/4/results)
 
 ```sh
 # summary from mina_voting MIP1 report
