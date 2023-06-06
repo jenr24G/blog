@@ -218,7 +218,7 @@ delegators = set()
 for account in ledger:
     pk = account['pk']
     dg = account['delegate']
-    bal = float(account['balance'])
+    bal = Decimal(account['balance'])
 
     # pk delegates
     if pk != dg:
