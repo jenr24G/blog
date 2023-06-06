@@ -1,10 +1,10 @@
 # On-Chain Voting Results for [MIPs](https://github.com/MinaProtocol/MIPs)
 
-> [Granola Systems](https://granola.team/) is a software consultancy and Mina ecosystem partner. We make winning teams using our expertise in leadership, DevOps, Web3, distributed systems, functional programming, and data engineering. Granola has developed a dashboard for displaying on-chain [MIP 3 Voting Results](https://www.mina.vote/proposal/3/results) [MIP 4 Voting Results](https://www.mina.vote/proposal/4/results). We operate an archive node and do regular [staking ledger dumps](https://github.com/Granola-Team/mina-ledger/tree/main/mainnet).
+> [Granola Systems](https://granola.team/) is a software consultancy and Mina ecosystem partner. We make winning teams using our expertise in leadership, DevOps, Web3, distributed systems, functional programming, and data engineering. Granola has developed a dashboard for displaying on-chain [voting results](https://www.mina.vote). We operate an archive node and do regular [staking ledger dumps](https://github.com/Granola-Team/mina-ledger/tree/main/mainnet).
 
 This article details the calculation of Mina's on-chain voting results. Equipped with the tools and knowledge, you can independently verify our code, logic, and results. Public blockchains like Mina Protocol are truly remarkable and equally as complex! We always strive for correctness in our code and exhaustively test.
 
-All the code for this project is open source ❤️ and available on [GitHub](https://github.com/Granola-Team/mina-governance).
+All the code for this project is open source ❤️ and available on [GitHub](https://github.com/Granola-Team/mina-on-chain-voting).
 
 Find an issue or a bug? Have a question or suggestion? We'd love to get your [feedback](https://docs.google.com/forms/d/e/1FAIpQLSeKoyUIVU3OrJ7hkakwHnOeWz9R8gRe-pUeduXeMyfFsmW6iQ/viewform?pli=1)!
 
@@ -18,21 +18,18 @@ At a high level, we will
 
 <ol>
   <li>
-    Obtain the <i>next staking ledger</i> of the <i>next</i> epoch
+    Obtain the <i>next staking ledger</i> of the <i>next</i> voting epoch
     <ul>
       <li>
-        The <i>staking ledger</i> of epoch 56 contains the necessary info about delegations
-      </li>
-      <li>
-        Available circa block 290 of the epoch
+        The results are calculated using the <i>staking ledger</i> of epoch 55
       </li>
     </ul>
   </li>
   <li>
-    Calculate aggregated voter stake as a float (Rust <code>f64</code>)
+    Calculate aggregated voter stake
     <ul>
       <li>
-        Sum all delegations to each voting public key
+        Sum all delegations to each voting public key minus any overriding votes.
       </li>
       <li>
         Voter stake weight is calculated with respect to the total <i>voting</i> stake
@@ -48,7 +45,7 @@ At a high level, we will
     Base58 decode the <code>memo</code> field of all votes
   </li>
   <li>
-    Calculate yse/no weight
+    Calculate yes/no weight
     <ul>
       <li>
         Sum yes/no vote stakes
@@ -96,7 +93,7 @@ There are several appropriate levels of engagement with this documentation. Read
 
 ## Results Calculation Instructions
 
-We calculate the results of [MIP3](https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-kimchi.md) and [MIP4](https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-zkapps.md) voting
+We calculate the results of [MIP3](https://mina.vote/proposal/3/results) and [MIP4](https://mina.vote/proposal/4/results) voting
 
 - MIP3 Start: *5/20/23 at 6:00 AM UTC* (Epoch 53, Slot 2820)
 - MIP3 End: *5/28/23 at 6:00 AM UTC* (Epoch 53, slot 6660)
@@ -124,7 +121,7 @@ Since we are calculating the results for MIP3 and MIP4 voting (epoch 53), we nee
 
 <pre><code>
 query NextLedgerHash {
-  blocks(query: {canonical: true, protocolState: {consensusState: {epoch: 55}}}, limit: 1) {
+  blocks(query: {canonical: true, protocolState: {consensusState: {epoch: 54}}}, limit: 1) {
     protocolState {
       consensusState {
         nextEpochData {
@@ -141,15 +138,15 @@ query NextLedgerHash {
 
 <pre><code>
 response = {
-  'data': {
-    'blocks': [
+  "data": {
+    "blocks": [
       {
-        'protocolState': {
-          'consensusState': {
-            'epoch': 55,
-            'nextEpochData': {
-              'ledger': {
-                'hash': 'jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS'
+        "protocolState": {
+          "consensusState": {
+            "epoch": 54,
+            "nextEpochData": {
+              "ledger": {
+                "hash": "jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS"
               }
             }
           }
@@ -168,7 +165,7 @@ response['data']['blocks'][0]['protocolState']['consensusState']['nextEpochData'
 
 </li>
 <li>
-  Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in fact, the <i>next staking ledger</i> of epoch 55, via
+  Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in fact, the <i>next staking ledger</i> of epoch 54, via
 
 <pre><code>
 wget https://raw.githubusercontent.com/Granola-Team/mina-ledger/main/mainnet/jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS.json -O path/to/ledger.json
@@ -192,7 +189,7 @@ You can use any of the following sources (extra credit: use them all and check d
     </a>
   </li>
 <li>
-  If you’re running a local daemon, you can export the next staking ledger (while we are in epoch 45) by
+  If you’re running a local daemon, you can export the next staking ledger (while we are in epoch 54) by
 
 <pre><code>
 mina ledger export next-staking-ledger > path/to/ledger.json
@@ -221,7 +218,7 @@ delegators = set()
 for account in ledger:
     pk = account['pk']
     dg = account['delegate']
-    bal = float(account['balance'])
+    bal = Decimal(account['balance'])
 
     # pk delegates
     if pk != dg:
@@ -304,24 +301,24 @@ To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding
             Block production varies over time; sometimes many blocks are produced in a slot, sometimes no blocks are produced. A priori, we do not know the exact block heights which constitute the voting period. We fetch all <i>canonical</i> block heights for the voting period, determined by the <i>start</i> and <i>end</i> times
 <pre><code>
 query BlockHeightsInVotingPeriod {
-  blocks(query: {canonical: true, dateTime_gte: "2023-01-04T16:00:00Z", dateTime_lte: "2023-01-14T08:30:00Z"}, limit: 7140) {
+  blocks(query: {canonical: true, dateTime_gte: "2023-05-20T6:00:00Z", dateTime_lte: "2023-05-28T06:00:00Z"}, limit: 7140) {
     blockHeight
   }
 }
 </code></pre>
 
-The max number of slots, hence blocks, in an epoch is `7140`. The response in includes block heights `213195` to `216095`
+The max number of slots, hence blocks, in an epoch is `7140`. The response in includes block heights `253078` to `255481`
 
 <pre><code>
 {
   "data": {
     "blocks": [
       {
-        "blockHeight": 216095
+        "blockHeight": 255481
       },
       ...
       {
-        "blockHeight": 213195
+        "blockHeight": 253078
       }
     ]
   }
@@ -356,26 +353,26 @@ For example, the response for block `216063`
   "data": {
     "transactions": [
       {
-        "blockHeight": 216063,
-        "memo": "E4Yxu8shUhP1SMV5fUoGZb4sqEPREUCLErpYVJMQD1pY5iuocbibr",
-        "nonce": 41977,
+        "blockHeight": 255481,
+        "memo": "E4YM2vTHhWEg66xpj52JErHUBU4pZ1yageL4TVDDpTTSsv8mK6YaH",
+        "nonce": 367551,
         "receiver": {
-          "publicKey": "B62qqJ1AqK3YQmEEALdJeMw49438Sh6zuQ5cNWUYfCgRsPkduFE2uLU"
+          "publicKey": "B62qjYanmV7y9njVeH5UHkz3GYBm7xKir1rAnoY4KsEYUGLMiU45FSM"
         },
         "source": {
-          "publicKey": "B62qnXy1f75qq8c6HS2Am88Gk6UyvTHK3iSYh4Hb3nD6DS2eS6wZ4or"
+          "publicKey": "B62qre3erTHfzQckNuibViWQGyyKwZseztqrjPZBv6SQF384Rg6ESAy"
         }
       },
       ...
-            {
-        "blockHeight": 216063,
+      {
+        "blockHeight": 255481,
         "memo": "E4YM2vTHhWEg66xpj52JErHUBU4pZ1yageL4TVDDpTTSsv8mK6YaH",
-        "nonce": 3,
+        "nonce": 105533,
         "receiver": {
-          "publicKey": "B62qjt1rDfVjGX6opVnLpshRigH5U6UFjyMNYdWCjo99im2v7VrzqF6"
+          "publicKey": "B62qkiF5CTjeiuV1HSx4SpEytjiCptApsvmjiHHqkb1xpAgVuZTtR14"
         },
         "source": {
-          "publicKey": "B62qpZMGRKrse3mVxf3SNMfzWh5c4TM2PfvgL98oVadwNWb6S1tJ8Te"
+          "publicKey": "B62qoXQhp63oNsLSN9Dy7wcF3PzLmdBnnin2rTnNWLbpgF7diABciU6"
         }
       }
     ]
@@ -429,10 +426,10 @@ Notice the base58 encoded `memo` field
     Sum all aggregated voter stake to get the <i>total voting stake</i>
   </li>
   <li>
-    For each delegate, start with their total stake, and subtract the balances of accounts that delegate to them with a disagreeing vote
+    For each delegate, start with their total stake, and subtract the balances of accounts that delegate to them with an overriding vote
   </li>
   <li>
-    Divide yes/no vote stakes by the total voting stake, as a float in Python, f64 in Rust
+    Divide yes/no vote stakes by the total voting stake
   </li>
 </ol>
 
