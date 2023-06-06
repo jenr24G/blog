@@ -253,7 +253,7 @@ for d in delegators:
 
 ### Obtain and parse votes
 
-To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding to the MIP1 voting period (votes are just special transactions after all). It would be nice to be able to prefilter the transactions more and only fetch what is required, but since `memo` fields are *base58 encoded* and *any capitalization of the keyword is valid*, prefiltering will be complex and error-prune.
+To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding to the voting period (votes are just special transactions after all). It would be nice to be able to prefilter the transactions more and only fetch what is required, but since `memo` fields are *base58 encoded* and *any capitalization of the keyword is valid*, prefiltering will be complex and error-prone.
 
 <ol type="a">
   <li>
@@ -436,7 +436,7 @@ Notice the base58 encoded `memo` field
   </li>
 </ol>
 
-Check agreement with the <a href="https://mina.vote/mainnet/mip1/results?start=1672848000000&end=1673685000000&hash=jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8">voting results dashboard</a> and/or `mina_voting` utility
+Check agreement with the voting results dashboard and/or `mina_voting` utility
 
 </ol>
 </li>
@@ -447,29 +447,6 @@ Check agreement with the <a href="https://mina.vote/mainnet/mip1/results?start=1
 [Granola's MIP3 results dashboard](https://www.mina.vote/proposal/3/results)
 
 [Granola's MIP4 results dashboard](https://www.mina.vote/proposal/4/results)
-
-```sh
-# summary from mina_voting MIP1 report
-
-Keyword: mip1
-Outcome: YES
-
-Yes vote stake:  224148426.55565
-No vote stake:   3465078.8547372
-
-Yes vote weight: 0.98477647954813
-No vote weight:  0.015223520451871
-
-Vote stake:      227613505.41039
-Total stake:     994001117.83985
-Turnout:         22.90%
-
-Num epoch txns:  56838
-Num "vote" txns: 251
-Num delegated:   181
-Num yes votes:   66
-Num no votes:    4
-```
 
 ## Conclusion
 
