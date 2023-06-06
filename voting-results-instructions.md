@@ -290,7 +290,7 @@ To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding
             <code>source = receiver</code>
           </li>
           <li>
-            <i>Valid</i> <code>memo</code> field (either <code>mip1</code> or <code>no mip1</code>)
+            <i>Valid</i> <code>memo</code> field (either <code>mip3</code> or <code>no mip3</code>)
           </li>
         </ol>
       </li>
@@ -395,7 +395,7 @@ Notice the base58 encoded `memo` field
             Filter the votes
             <ol>
               <li>
-                <code>memo.lower()</code> <i>exactly equal</i> to <code>mip1</code> or <code>no mip1</code>
+                <code>memo.lower()</code> <i>exactly equal</i> to <code>mip3</code> or <code>no mip3</code>
               </li>
               <li>
                 <code>source = receiver</code> (self transaction)
