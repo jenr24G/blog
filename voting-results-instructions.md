@@ -21,7 +21,7 @@ At a high level, we will
     Obtain the <i>next staking ledger</i> of the <i>next</i> epoch
     <ul>
       <li>
-        The <i>staking ledger</i> of epoch 46 contains the necessary info about delegations
+        The <i>staking ledger</i> of epoch 56 contains the necessary info about delegations
       </li>
       <li>
         Available circa block 290 of the epoch
@@ -108,7 +108,7 @@ We calculate the results of [MIP3](https://github.com/MinaProtocol/MIPs/blob/mai
 | Data | Value |
 |:-:|:-:|
 | *Epoch* | `53` |
-| *Keyword* | `MIP3 | MIP4` |
+| *Keyword* | `MIP3, MIP4` |
 | *Start time* | `May 20, 2023 06:00 UTC` |
 | *End time* | `May 28, 2023 06:00 UTC` |
 
@@ -436,7 +436,11 @@ Notice the base58 encoded `memo` field
   </li>
 </ol>
 
-Check agreement with the voting results dashboard and/or `mina_voting` utility
+Check agreement with the voting results dashboard and/or `@trevorbernard`'s verification scripts
+
+### Vote Verification Scripts
+MIP3: https://gist.github.com/trevorbernard/ec11db89bb9079dd0a01332ef32c0284
+MIP4: https://gist.github.com/trevorbernard/928be21e8e1d9464c3a9b2453d9fd886
 
 </ol>
 </li>
