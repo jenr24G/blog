@@ -21,7 +21,7 @@ At a high level, we will
     Obtain the <i>next staking ledger</i> of the <i>next</i> epoch
     <ul>
       <li>
-        The <i>staking ledger</i> of epoch 46 contains the necessary info about delegations
+        The <i>staking ledger</i> of epoch 56 contains the necessary info about delegations
       </li>
       <li>
         Available circa block 290 of the epoch
@@ -108,7 +108,7 @@ We calculate the results of [MIP3](https://github.com/MinaProtocol/MIPs/blob/mai
 | Data | Value |
 |:-:|:-:|
 | *Epoch* | `53` |
-| *Keyword* | `MIP3 | MIP4` |
+| *Keyword* | `MIP3, MIP4` |
 | *Start time* | `May 20, 2023 06:00 UTC` |
 | *End time* | `May 28, 2023 06:00 UTC` |
 
@@ -436,7 +436,28 @@ Notice the base58 encoded `memo` field
   </li>
 </ol>
 
-Check agreement with the voting results dashboard and/or `mina_voting` utility
+### Adjust Votes and Voting Stake with Non-Delegating Voters
+Find all votes made by a delegating account, and subtract their account balance from the final voting stake if they disagree with their delegate
+<pre><code>
+delegating_stake = {}
+delegating_votes = {}
+for vote in votes:
+    if vote.pk in delegators:
+        delegating_stake[vote.pk] = accounts[vote.pk]['balance']
+        delegating_votes[vote.pk] = vote.memo
+for vote in delegating_votes
+    delegate_vote = votes[accounts[pk]['delegate']]
+    if against(delegate_vote) and for(vote) and pk not in delegating_votes:
+        no_stake -= delegating_stake[vote.pk]
+    else if for(delegate_vote) and  against(vote) and pk not in delegating_votes:
+        yes_stake -= delegating_stake[vote.pk]
+</code></pre>
+
+Check agreement with the voting results dashboard and/or `@trevorbernard`'s verification scripts
+
+### Vote Verification Scripts
+MIP3: https://gist.github.com/trevorbernard/ec11db89bb9079dd0a01332ef32c0284
+MIP4: https://gist.github.com/trevorbernard/928be21e8e1d9464c3a9b2453d9fd886
 
 </ol>
 </li>
